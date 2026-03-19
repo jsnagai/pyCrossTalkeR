@@ -4,7 +4,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import igraph
 import itertools
-from scipy.stats import fisher_exact, MonteCarloMethod, mannwhitneyu, gmean
+from scipy.stats import fisher_exact, mannwhitneyu, gmean
 from scipy.cluster.hierarchy import linkage, leaves_list
 import pickle
 from itertools import combinations
@@ -443,19 +443,6 @@ def fisher_test_cci(annData, measure, out_path, comparison=None):
                 matrix = np.array([[row['measure_exp'], etotal], [row['measure_ctr'], ctotal]])
 
                 odds_ratio, p_value = fisher_exact(matrix, alternative="two-sided")
-    
-                # Monte Carlo resampling (if B > 0)
-                B = 1000
-                np.random.seed(42)  # For reproducibility
-                if B > 0:
-                    count = 0
-                    for _ in range(B):
-                        shuffled = np.random.permutation(matrix.flatten()).reshape(matrix.shape)
-                        if fisher_exact(shuffled, alternative="two-sided")[1] <= p_value:
-                            count += 1
-                    perm_p_value = (count + 1) / (B + 1)  # Avoid zero probability
-                else:
-                    perm_p_value = None
 
                 lodds = np.log2(odds_ratio) if odds_ratio > 0 else None  # Compute log odds ratio
 
@@ -494,19 +481,6 @@ def fisher_test_cci(annData, measure, out_path, comparison=None):
                         etotal = measure_exp_sum - row['measure_exp']
                         matrix = np.array([[row['measure_exp'], etotal], [row['measure_ctr'], ctotal]])
                         odds_ratio, p_value = fisher_exact(matrix, alternative="two-sided")
-    
-                        # Monte Carlo resampling (if B > 0)
-                        B = 1000
-                        np.random.seed(42)  # For reproducibility
-                        if B > 0:
-                            count = 0
-                            for _ in range(B):
-                                shuffled = np.random.permutation(matrix.flatten()).reshape(matrix.shape)
-                                if fisher_exact(shuffled, alternative="two-sided")[1] <= p_value:
-                                    count += 1
-                            perm_p_value = (count + 1) / (B + 1)  # Avoid zero probability
-                        else:
-                            perm_p_value = None
 
                         lodds = np.log2(odds_ratio) if odds_ratio > 0 else None  # Compute log odds ratio
 
@@ -718,7 +692,6 @@ def from_liana(adata, liana_key = "liana", score_key="lr_means",pval_key="cellph
                     evfull['MeanLR'] = evfull[score_key]
                 else:
                     evfull['MeanLR'] = gmean(evfull.loc[:,['ligand_means','receptor_means']],axis=1)
-                k = i[0:i.find('_lr_')]
                 if pval_filter:
                     evfull = evfull.loc[list(evfull[pval_key].to_numpy()<=0.05),:]
                 evfull = evfull.loc[:, ['source', 'target', 'type_gene_A', 'type_gene_B', 'gene_A', 'gene_B', 'MeanLR']]
@@ -735,7 +708,6 @@ def from_liana(adata, liana_key = "liana", score_key="lr_means",pval_key="cellph
                 evfull['MeanLR'] = evfull[score_key]
             else:
                 evfull['MeanLR'] = gmean(evfull.loc[:,['ligand_means','receptor_means']],axis=1)
-            k = i[0:i.find('_lr_')]
             if pval_filter:
                 evfull = evfull.loc[list(evfull[pval_key].to_numpy()<=0.05),:]
             evfull = evfull.loc[:, ['source', 'target', 'type_gene_A', 'type_gene_B', 'gene_A', 'gene_B', 'MeanLR']]

@@ -32,7 +32,7 @@ def plot_cci(graph, colors, plt_name, coords, pg, emax=None, leg=False, low=25, 
     low :
         Lower threshold: This parameter low and high defines the edges
     high :
-        Higher threshould which will be filtered. Edges within the interval [low\,high] are filtered.
+        Higher threshold which will be filtered. Edges within the interval [low,high] are filtered.
     ignore_alpha :
         Not include transparency on the plot edges
     log :
@@ -134,7 +134,7 @@ def plot_cci(graph, colors, plt_name, coords, pg, emax=None, leg=False, low=25, 
     non_zero_inter_edges = [d['inter'] for _, _, d in graph.edges(data=True) if d.get('inter', 0) != 0]
     if non_zero_inter_edges:
         e_wid_sp = [round(min(non_zero_inter_edges), 2), round(min(non_zero_inter_edges) + (emax / 2), 2), round(emax, 2)]
-        legend2 = ax.legend(e_wid_sp, title='Percentage of \nthe interactions', title_fontsize='small', loc='upper left', bbox_to_anchor=(0.95, 0.7))
+        ax.legend(e_wid_sp, title='Percentage of \nthe interactions', title_fontsize='small', loc='upper left', bbox_to_anchor=(0.95, 0.7))
 
     ax.add_artist(legend1)
     ax.set_title(plt_name)
@@ -432,9 +432,6 @@ def plot_sankey(lrobj_tbl, target = None, ligand_cluster = None, receptor_cluste
     if receptor_cluster is not None:
         data = data[data['target'].isin(receptor_cluster)]
 
-    color_palette = ['#00BFC4', '#FF3E3E']
-
-    
     if len(data) >= 1:
         cat_cols = ['source', 'gene_A', 'gene_B', 'target']
         value_cols = 'LRScore'
